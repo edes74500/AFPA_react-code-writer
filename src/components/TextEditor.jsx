@@ -14,7 +14,7 @@ const StyledContainer = styled.div`
   width: 1000px;
   grid-template-areas: "a b e" "c c c";
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 50px;
+  gap: 20px;
   justify-content: center;
   align-items: center;
   div {
@@ -24,6 +24,12 @@ const StyledContainer = styled.div`
   #css-container {
     height: 200px !important;
     width: 100% !important;
+    border: 1px solid #6c6868;
+    .ace_gutter {
+      width: 40px !important;
+      display: flex;
+      justify-content: center;
+    }
   }
 
   .iframe-container {
@@ -37,6 +43,7 @@ const StyledContainer = styled.div`
     #iframeContainer {
       width: 100%;
       height: 100%;
+      border: 1px solid #6c6868;
     }
     iframe {
       border: none;
@@ -55,13 +62,14 @@ const TextEditor = () => {
   const defaultJsValue = `const test = document.getElementById("test");
     test.innerHTML = "Reussi !"`;
 
-  const defaultCssValue = `body {
+  const defaultCssValue = `h1 {
+    color:red;
+}`;
+
+  const hiddenCss = ` body {
     background: #272822;
     color: white;
-}
-
-h1 {
-    color:red;
+    padding : 10px;
 }`;
 
   //   let [code, setCode] = useState(defaultJsValue);
@@ -85,21 +93,16 @@ h1 {
 
   useEffect(() => {
     executeCode();
-  }, []);
+  }, [cssCode, jsCode, htmlCode]);
 
   const recreateIframe = () => {
     if (iframeRef.current) {
       iframeRef.current.remove();
     }
-
     const newIframe = document.createElement("iframe");
     newIframe.title = "result";
-
-    // Ajouter le nouvel iframe au DOM
-    const container = document.getElementById("iframeContainer"); // Assurez-vous d'avoir un élément avec cet ID
+    const container = document.getElementById("iframeContainer");
     container.appendChild(newIframe);
-
-    // Mettre à jour la référence
     iframeRef.current = newIframe;
   };
 
@@ -108,14 +111,13 @@ h1 {
     const iframe = iframeRef.current;
     const document = iframe.contentDocument || iframe.contentWindow.document;
 
-    // Réinitialisation du contenu de l'iframe
     document.open();
     document.write(`<html> <head>
         <style>${cssCode}</style>
+        <style>${hiddenCss}</style>
       </head><body>${htmlCode}</body></html>`); // Injecter le HTML
     document.close();
 
-    // Créer et injecter le script
     const scriptElement = document.createElement("script");
     scriptElement.type = "text/javascript";
     scriptElement.text = jsCode; // 'code' est votre code JavaScript
